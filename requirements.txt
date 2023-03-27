@@ -1,0 +1,6 @@
+torch~=2.0.0
+lightning~=2.0.0
+torchvision~=0.15.1
+omegaconf~=2.3.0
+numpy~=1.21.5
+scipy~=1.7.3
