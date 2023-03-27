@@ -13,11 +13,18 @@ from omegaconf import DictConfig
 log = logging.getLogger(__name__)
 
 
-@hydra.main(config_path="config", config_name="config.yaml")
+@hydra.main(version_base=None, config_path="config", config_name="config.yaml")
 def func(cfg: DictConfig):
     log.info("Info level message")
     print(cfg)
-    return cfg
+    model = Fashion_MNIST_Classifier(**cfg)
+    data_module = MNISTDataModule(os.getcwd(), cfg.get('batch_size'))
+    trainer = pl.Trainer(limit_train_batches=100, max_epochs=cfg.get('epochs'))
+    trainer.fit(model, data_module)
+    trainer.validate(model=model, datamodule=data_module)
+    trainer.test(model=model, datamodule=data_module)
+    predictions = trainer.predict(model=model, datamodule=data_module)
+    # print(predictions)
 
 
 class MNISTDataModule(pl.LightningDataModule):
@@ -135,12 +142,4 @@ class Fashion_MNIST_Classifier(pl.LightningModule):
 
 
 if __name__ == "__main__":
-    cfg = func()
-    model = Fashion_MNIST_Classifier()
-    data_module = MNISTDataModule(os.getcwd())
-    trainer = pl.Trainer(limit_train_batches=100, max_epochs=30)
-    trainer.fit(model, data_module)
-    trainer.validate(model=model, datamodule=data_module)
-    trainer.test(model=model, datamodule=data_module)
-    predictions = trainer.predict(model=model, datamodule=data_module)
-    # print(predictions)
+   func()
